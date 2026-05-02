@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frappii Content OS — Dashboard</title>
+<style>
+  :root {
+    --bg: #0B0C15;
+    --sidebar: #13141f;
+    --card: #1a1b2e;
+    --border: #2a2b3e;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #8b5cf6;
+    --accent-2: #6366f1;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+  }
+  .brand {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .brand-sub { font-size: 12px; color: var(--text-dim); margin-bottom: 32px; }
+  .nav-item {
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all .15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active { background: rgba(139,92,246,0.12); color: var(--accent); }
+  .nav-icon { width: 18px; text-align: center; }
+  .sidebar-footer {
+    margin-top: auto;
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 0 14px;
+    line-height: 1.5;
+  }
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .header p { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
+  .btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  /* CARDS */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .grid-2 { grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: rgba(139,92,246,0.3); }
+  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .card-body { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+  .tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .tag-purple { background: rgba(139,92,246,0.15); color: #c4b5fd; }
+  .tag-blue { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+  .tag-green { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+  .tag-red { background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .tag-orange { background: rgba(245,158,11,0.15); color: #fcd34d; }
+  /* SCRIPT GENERATOR */
+  .generator {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .form-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  select, input, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+  }
+  select:focus, input:focus, textarea:focus { border-color: var(--accent); }
+  textarea { min-height: 200px; resize: vertical; font-family: inherit; line-height: 1.5; }
+  .output-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    position: relative;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; color: var(--text-dim); font-weight: 600; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  /* UTILS */
+  .hidden { display: none !important; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; margin-top: 8px; }
+  .mb-4 { margin-bottom: 16px; }
+  .text-sm { font-size: 12px; }
+  .text-dim { color: var(--text-dim); }
+  .flex { display: flex; gap: 12px; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .w-full { width: 100%; }
+  .mt-4 { margin-top: 16px; }
+  .p-4 { padding: 16px; }
+  .rounded { border-radius: 8px; }
+  .bg-dark { background: var(--bg); }
+  .border { border: 1px solid var(--border); }
+  .madlib { background: rgba(139,92,246,0.08); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--accent); margin: 8px 0; font-size: 12px; color: #ddd; }
+  .checklist-item { display: flex; align-items: start; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--text-dim); }
+  .checklist-item input { margin-top: 3px; }
+  @media (max-width: 900px) {
+    .sidebar { width: 200px; }
+    .main { padding: 20px; }
+    .form-row { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+    .main { padding: 16px; }
+    .form-row { grid-template-columns: 1fr; }
+    .grid, .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="brand">Frappii OS</div>
+  <div class="brand-sub">Content System v1.0</div>
+
+  <div class="nav-item active" onclick="showSection('generator')">
+    <span class="nav-icon">⚡</span> Script Generator
+  </div>
+  <div class="nav-item" onclick="showSection('vault')">
+    <span class="nav-icon">🧠</span> Le Vault
+  </div>
+  <div class="nav-item" onclick="showSection('factory')">
+    <span class="nav-icon">🏭</span> La Factory
+  </div>
+  <div class="nav-item" onclick="showSection('funnel')">
+    <span class="nav-icon">🔄</span> Le Funnel
+  </div>
+  <div class="nav-item" onclick="showSection('calendar')">
+    <span class="nav-icon">📅</span> Calendar
+  </div>
+  <div class="nav-item" onclick="showSection('prompt')">
+    <span class="nav-icon">📋</span> Prompt Maître
+  </div>
+
+  <div class="sidebar-footer">
+    Copie le Prompt Maître au début de chaque conversation Kimi.<br><br>
+    Identité avant action.<br>
+    Process avant contenu.
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- SECTION: GENERATOR -->
+<div id="section-generator" class="section">
+  <div class="header">
+    <div>
+      <h1>Script Generator</h1>
+      <p>Choisis ton bucket, ton topic, ton hook. Le système assemble le script.</p>
+    </div>
+    <button class="btn" onclick="generateScript()">Générer le script</button>
+  </div>
+
+  <div class="generator">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Bucket</label>
+        <select id="gen-bucket">
+          <option value="origin">ORIGIN (nostalgie+rage)</option>
+          <option value="paradis">PARADIS (inspiration+mélancolie)</option>
+          <option value="chute" selected>CHUTE (vulnérabilité+révolte)</option>
+          <option value="mission">MISSION (espoir+direction)</option>
+          <option value="lecons">LEÇONS (révélation+fraternité)</option>
+          <option value="grind">GRIND PUR (flow+expertise)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Topic</label>
+        <select id="gen-topic">
+          <option value="worlds">Worlds 2021 — Le banc</option>
+          <option value="coree">Corée 16 ans — Le paradis</option>
+          <option value="pseudo">Pseudo Frappii — L'identité</option>
+          <option value="bans">40 bans — La rage</option>
+          <option value="hardstuck">Hardstuck — Le système bloqué</option>
+          <option value="hybride">Vie Hybride — 4 feux</option>
+          <option value="tilt">Tilt — Shame loop</option>
+          <option value="monocap">Mono-capacité — Poly-capable</option>
+          <option value="iae">Cycle IAE — 6 mois</option>
+          <option value="saisonnier">Système Saisonnier — 8/1/3</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Hook Type</label>
+        <select id="gen-hook">
+          <option value="personal">Personal stake / Origin</option>
+          <option value="contrarien">Contrarien / Inversion</option>
+          <option value="socratique">Question Socratique</option>
+          <option value="cas">Case study chiffré</option>
+          <option value="comparaison">Comparaison / Contraste</option>
+          <option value="liste">Liste numérotée</option>
+          <option value="harsh">Harsh truth empathique</option>
+          <option value="hypo">Hypothétique / Scénario</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Format</label>
+        <select id="gen-format">
+          <option value="reel">Reel (60 sec)</option>
+          <option value="email">Email</option>
+          <option value="carousel">Carrousel</option>
+          <option value="long">Long Form (YT)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="script-output" class="output-box hidden">
+      <button class="copy-btn" onclick="copyOutput()">Copier</button>
+      <div id="script-text"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Quick Actions</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">🎬 Reel Type A — Hook Choc</div>
+      <div class="card-body">Storytelling brutal. Accroche personnelle + pont émotionnel + pivot coaching + CTA DM AUDIT. Parfait pour CHUTE et ORIGIN.</div>
+      <div class="mt-4">
+        <span class="tag tag-red">CHUTE</span>
+        <span class="tag tag-purple">ORIGIN</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎬 Reel Type B — Cadre Coréen</div>
+      <div class="card-body">Valeur éducative. 3 différences + bridge vie hybride + CTA DM HYBRIDE. Parfait pour PARADIS et LEÇONS.</div>
+      <div class="mt-4">
+        <span class="tag tag-blue">PARADIS</span>
+        <span class="tag tag-green">LEÇONS</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎬 Reel Type C — Mythe Busté</div>
+      <div class="card-body">Authority + provoc. Affirmation choc + preuve + reframe + CTA tag/soft. Parfait pour MISSION et GRIND.</div>
+      <div class="mt-4">
+        <span class="tag tag-orange">MISSION</span>
+        <span class="tag tag-purple">GRIND</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: VAULT -->
+<div id="section-vault" class="section hidden">
+  <div class="header">
+    <div>
+      <h1>Le Vault</h1>
+      <p>La matière première. Stories, frameworks, lexique, preuves.</p>
+    </div>
+  </div>
+
+  <div class="section-title">🎭 Les 4 Stories Piliers</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">🧒 Pseudo Frappii — 8 ans</div>
+      <div class="card-body">
+        <strong>Émotion:</strong> Nostalgie + rage<br>
+        <strong>Bucket:</strong> ORIGIN<br><br>
+        Frère joueur pro, restriction mère 1 an sur TF2, "my go time", générateur de pseudo, Frappy → Frappii. Puissance associée au nom. Sable de Gladiator.
+      </div>
+      <div class="mt-4"><span class="tag tag-purple">ORIGIN</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🇰🇷 Corée — 16 ans</div>
+      <div class="card-body">
+        <strong>Émotion:</strong> Inspiration + mélancolie<br>
+        <strong>Bucket:</strong> PARADIS<br><br>
+        25 games/jour, énergie électrique, enfin compris, Riot Account, ADC chinois, ex qui marcelle. Mirage : toucher son rêve et comprendre que c'est un mirage.
+      </div>
+      <div class="mt-4"><span class="tag tag-blue">PARADIS</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏆 Worlds 2021 — Le banc</div>
+      <div class="card-body">
+        <strong>Émotion:</strong> Vulnérabilité + révolte<br>
+        <strong>Bucket:</strong> CHUTE<br><br>
+        Qualifié, benché veille, excuse "parle pas russe", larmes Islande, psy, drogue, 40 bans, injustice totale. "J'ai fondu en larmes devant tout le monde."
+      </div>
+      <div class="mt-4"><span class="tag tag-red">CHUTE</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🚀 Naissance Incubateur</div>
+      <div class="card-body">
+        <strong>Émotion:</strong> Espoir + direction<br>
+        <strong>Bucket:</strong> MISSION<br><br>
+        Altruisme détruit par l'esport, 50 bans, cadre reconstruit. "Je donne le cadre que j'aurais aimé avoir." Vulnérabilité comme force.
+      </div>
+      <div class="mt-4"><span class="tag tag-orange">MISSION</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">📐 Frameworks Signature</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">🔄 Cycle IAE — 6 mois</div>
+      <div class="card-body">
+        <strong>M1-2 Identité :</strong> Qui es-tu quand tu cliques play ?<br>
+        <strong>M3-4 Alignement :</strong> Tes décisions matchent ton identité ?<br>
+        <strong>M5-6 Exécution :</strong> Macro, draft, mécanique — rapide car fondation solide.<br><br>
+        <em>"99% des coachs te passent Or à Plat. Moi je passe 4 mois sur ce que personne ne bosse."</em>
+      </div>
+      <div class="mt-4"><span class="tag tag-purple">CONTRARIEN</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🌱 Système Saisonnier — 8/1/3</div>
+      <div class="card-body">
+        <strong>Saison FULL (8 mois) :</strong> Volume max, exécution, zéro learning.<br>
+        <strong>Saison TRANSITION (1 mois) :</strong> Audit, diagnostic, choix d'1 levier.<br>
+        <strong>Saison CHILL (3 mois) :</strong> Exploration identitaire, intégration nouvelle compétence.<br><br>
+        <em>"La progression n'est pas linéaire, elle est saisonnière."</em>
+      </div>
+      <div class="mt-4"><span class="tag tag-blue">ANTI-HORMOZI</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚖️ Vie Hybride</div>
+      <div class="card-body">
+        <strong>Games de travail :</strong> Intention définie, focus drill, analyse post-game, max 2-3 consécutives.<br>
+        <strong>Games d'exutoire :</strong> Aucune obligation, liberté totale, jouées quand fatigué.<br><br>
+        <em>"Le joueur avec 5h/semaine bien structurées bat le joueur avec 20h chaotiques."</em>
+      </div>
+      <div class="mt-4"><span class="tag tag-green">NEUROSCIENCE</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔥 Les 4 Feux</div>
+      <div class="card-body">
+        LoL, taf, couple, santé, sommeil — t'as 4 feux, pas 5.<br><br>
+        L'adulte qui veut Master sans renoncer à rien finit Or et frustré partout. Éteindre 1 feu consciemment = maturité.<br><br>
+        <em>"Ce qu'on appelle sacrifice est souvent juste un choix chirurgical."</em>
+      </div>
+      <div class="mt-4"><span class="tag tag-orange">POLY-CAPABLE</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">🗣️ Lexique — Mots Fétiches</div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <span class="tag tag-purple">cadre</span>
+      <span class="tag tag-purple">intention</span>
+      <span class="tag tag-purple">stack</span>
+      <span class="tag tag-purple">grind</span>
+      <span class="tag tag-purple">mirage</span>
+      <span class="tag tag-purple">banc</span>
+      <span class="tag tag-purple">hybride</span>
+      <span class="tag tag-purple">mono-capacité</span>
+      <span class="tag tag-purple">poly-capable</span>
+      <span class="tag tag-purple">flou décisionnel</span>
+      <span class="tag tag-purple">identité avant action</span>
+      <span class="tag tag-purple">système plutôt que motivation</span>
+      <span class="tag tag-purple">propriété de l'intention</span>
+      <span class="tag tag-purple">cost of learning</span>
+      <span class="tag tag-purple">shame loop</span>
+      <span class="tag tag-purple">saison full</span>
+      <span class="tag tag-purple">saison transition</span>
+      <span class="tag tag-purple">saison chill</span>
+    </div>
+  </div>
+
+  <div class="section-title">🚫 Mots Interdits</div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <span class="tag tag-red">mindset</span>
+      <span class="tag tag-red">scaling</span>
+      <span class="tag tag-red">ROI</span>
+      <span class="tag tag-red">KPI</span>
+      <span class="tag tag-red">level up</span>
+      <span class="tag tag-red">crush it</span>
+      <span class="tag tag-red">unlock</span>
+      <span class="tag tag-red">game changer</span>
+      <span class="tag tag-red">transformation garantie</span>
+      <span class="tag tag-red">bro / brotha</span>
+      <span class="tag tag-red">hype agressive</span>
+      <span class="tag tag-red">success theater</span>
+    </div>
+  </div>
+
+  <div class="section-title">👥 Preuves Sociales</div>
+  <table>
+    <tr><th>Client</th><th>Trajectoire</th><th>Durée</th><th>Contexte</th></tr>
+    <tr><td><strong>Chaddouk</strong></td><td>D4 → Challenger</td><td>4 ans</td><td>Fondateur boîte, discipline long terme</td></tr>
+    <tr><td><strong>Lunex</strong></td><td>Bronze → Master</td><td>8 mois</td><td>Intérim 35h/sem, Cycle Saisonnier</td></tr>
+    <tr><td><strong>Nyda</strong></td><td>Émeraude 3 ans → Diamond</td><td>4 mois</td><td>0 changement mécanique, fix identitaire</td></tr>
+  </table>
+</div>
+
+<!-- SECTION: FACTORY -->
+<div id="section-factory" class="section hidden">
+  <div class="header">
+    <div>
+      <h1>La Factory</h1>
+      <p>Templates, hooks, workflows, calendrier de production.</p>
+    </div>
+  </div>
+
+  <div class="section-title">🎣 Les 8 Types de Hooks</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">1. Personal stake / Origin</div>
+      <div class="card-body">13.1M vues. Tu t'exposes avant de prêcher. Preuve sociale + permission émotionnelle.</div>
+      <div class="madlib">Voici [media] de moi à [état extrême]. Voilà ce qui est resté.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">2. Contrarien / Inversion</div>
+      <div class="card-body">13.0M vues. Affirme l'opposé exact d'une croyance dominante. Pattern interrupt cognitif.</div>
+      <div class="madlib">[Action] envers [Groupe A], [opposé] envers [Groupe B]. Pas l'inverse.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">3. Question Socratique</div>
+      <div class="card-body">12.5M vues. Force le viewer à chercher sa réponse avant la tienne. Open loop neurologique.</div>
+      <div class="madlib">Quel(le) est le/la [plus simple/taboo] [chose] que t'as vu·e [résultat surprenant] ?</div>
+    </div>
+    <div class="card">
+      <div class="card-title">4. Case study chiffré</div>
+      <div class="card-body">10.0M vues. Cas concret nominatif. Spécificité = crédibilité.</div>
+      <div class="madlib">J'ai un·e [profil]. On est à [chiffre]. On veut [chiffre cible].</div>
+    </div>
+    <div class="card">
+      <div class="card-title">5. Comparaison / Contraste</div>
+      <div class="card-body">9.0M vues. Deux entités identiques, résultats divergents. Le cerveau adore.</div>
+      <div class="madlib">Deux [profils] [même condition]. Voilà la différence.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">6. Liste numérotée</div>
+      <div class="card-body">5.7M vues. Promesse cognitive bornée. Le viewer sait combien de temps ça coûte.</div>
+      <div class="madlib">Les [N] seul·e·s [items] dont t'as besoin pour [outcome].</div>
+    </div>
+    <div class="card">
+      <div class="card-title">7. Harsh truth empathique</div>
+      <div class="card-body">5.3M vues. Vérité tranchée que personne n'ose dire. Contre-intuitive mais douce.</div>
+      <div class="madlib">Tout [habitude] est [conséquence], pour sûr ? Faux.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">8. Hypothétique / Scénario</div>
+      <div class="card-body">2.8M vues. Projection mentale active la simulation. Ultra recyclable.</div>
+      <div class="madlib">Si je [repartais de zéro] et voulais [outcome], voilà les [N] phases.</div>
+    </div>
+  </div>
+
+  <div class="section-title">🛠️ Workflow Reel — 5 Étapes</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">1. HOOK (0-3 sec)</div>
+      <div class="card-body">Choisir dans la matrice 10×10. Max 25 mots. Tutoiement. 1 chiffre vérifiable.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">2. PROMESSE (3-7 sec)</div>
+      <div class="card-body">Ce que le viewer va apprendre. Clair, sans jargon. "Voilà pourquoi tu plafonnes."</div>
+    </div>
+    <div class="card">
+      <div class="card-title">3. BODY (7-30 sec)</div>
+      <div class="card-body">
+        <strong>A. Story :</strong> Setup → Conflit → Insight<br>
+        <strong>B. Framework :</strong> 3 points numérotés, 1 chiffré<br>
+        <strong>C. Contrarien :</strong> Idée reçue → Preuve → Reframe
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">4. BRIDGE FRAPPII (30-45 sec)</div>
+      <div class="card-body">
+        AU MOINS UN :<br>
+        • Concept signature (flou décisionnel, mono-capacité...)<br>
+        • Client (Chaddouk, Lunex, Nyda)<br>
+        • Incubateur ("dans l'incubateur, on appelle ça...")<br>
+        • Contrarien-cyclicité ("Hormozi dit X, mais toi...")
+      </div>
+    </div>
+  </div>
+  <div class="card mt-4">
+    <div class="card-title">5. CTA (45-60 sec) — Matrice</div>
+    <div class="card-body">
+      <strong>Soft (4/10) :</strong> "DM [KEYWORD], je t'envoie [ressource]"<br>
+      <strong>Medium (3/10) :</strong> "Lien en bio pour la version complète"<br>
+      <strong>Hard (2/10) :</strong> "Candidate à l'incubateur — DM APPLY"<br>
+      <strong>No-CTA (1/10) :</strong> Silence final, pure brand building
+    </div>
+  </div>
+
+  <div class="section-title">📧 Séquence Email Nurture</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Email 1 — Le pseudo</div>
+      <div class="card-body">
+        <strong>Sujet :</strong> Pourquoi mon pseudo s'appelle Frappii<br><br>
+        L'histoire du générateur de pseudo, du grand frère, de la restriction maternelle. Le sable de Gladiator. La rage stackée.<br><br>
+        <em>"Cette rage, je l'ai transformée en cadre pour toi."</em>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Email 2 — Corée, le mirage</div>
+      <div class="card-body">
+        <strong>Sujet :</strong> Les meilleurs jours de ma vie étaient une erreur<br><br>
+        Le voyage à 16 ans, le paradis, l'ex, le retour en France = exil.<br><br>
+        <em>"Tu peux toucher ton rêve et comprendre que c'est un mirage si tu sacrifies tout autour."</em>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Email 3 — Le banc</div>
+      <div class="card-body">
+        <strong>Sujet :</strong> Ils m'ont dit que je parlais pas russe<br><br>
+        Worlds 2021, l'injustice, le silence, l'hôpital psy.<br><br>
+        <em>"Je ne te raconte pas ça pour que tu plains. Je te le raconte parce que c'est exactement ce que je t'évite."</em>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Email 4 — 40 bans</div>
+      <div class="card-body">
+        <strong>Sujet :</strong> J'ai détruit 40 comptes LOL. Voici ce que j'ai appris.<br><br>
+        L'altruisme détruit par l'esport, la naissance de l'incubateur.<br><br>
+        <em>"Je ne te demande pas d'être gentil. Je te demande d'être intentionnel."</em>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Email 5 — La vulnérabilité</div>
+      <div class="card-body">
+        <strong>Sujet :</strong> Aux hommes qui pensent que la performance = valeur<br><br>
+        La dernière leçon. Grand pouvoir, grande responsabilité.<br><br>
+        <em>"Tu es déjà assez fort. Maintenant, apprends à être entier."</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">🎠 Templates Carrousel</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Carrousel 1 — 5 signes</div>
+      <div class="card-body">
+        1. Tu cries quand tes mates feed = tu as de l'intention qu'ils n'ont pas<br>
+        2. Tu grind 12h mais tu détestes ta vie = pas de cadre<br>
+        3. On te dit "calme-toi" quand tu proposes une strat = incompétence autour<br>
+        4. Tu préfères jouer solo = t'as jamais trouvé ton crew<br>
+        5. Tu te sens vide après une win = tu joues exutoire, pas objectif<br><br>
+        → Slide final : "L'incubateur est ce crew."
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Carrousel 2 — Corée vs Europe</div>
+      <div class="card-body">
+        Tableau comparatif visuel.<br><br>
+        <strong>Corée :</strong> discipline, énergie, acceptation<br>
+        <strong>Europe :</strong> paresse, jugement, banc<br><br>
+        → Slide final : "Tu n'as pas besoin d'un billet d'avion. Tu as besoin d'un cadre."
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: FUNNEL -->
+<div id="section-funnel" class="section hidden">
+  <div class="header">
+    <div>
+      <h1>Le Funnel</h1>
+      <p>Lead magnets, keywords DM, profile funnel, ads.</p>
+    </div>
+  </div>
+
+  <div class="section-title">🎁 Les 5 Lead Magnets</div>
+  <table>
+    <tr><th>#</th><th>Nom</th><th>Format</th><th>Keyword</th><th>CTA</th></tr>
+    <tr><td>1</td><td><strong>Auto-évaluation d'identité</strong></td><td>Quiz 10 questions</td><td><span class="tag tag-purple">AUDIT</span></td><td>"DM AUDIT, je t'envoie l'évaluation"</td></tr>
+    <tr><td>2</td><td><strong>Guide "La Vie Hybride"</strong></td><td>PDF / Notion</td><td><span class="tag tag-blue">HYBRIDE</span></td><td>"DM HYBRIDE pour le guide gratuit"</td></tr>
+    <tr><td>3</td><td><strong>Grille Système Saisonnier</strong></td><td>PDF / Notion</td><td><span class="tag tag-green">SYSTÈME</span></td><td>"DM SYSTÈME pour la grille des 3 saisons"</td></tr>
+    <tr><td>4</td><td><strong>Tier list inverse champs adultes</strong></td><td>PDF court</td><td><span class="tag tag-orange">TIER</span></td><td>"DM TIER pour les champs à éviter"</td></tr>
+    <tr><td>5</td><td><strong>Assessment "Es-tu prêt ?"</strong></td><td>Auto-qualification</td><td><span class="tag tag-red">APPLY</span></td><td>"DM APPLY si tu coches 4/5"</td></tr>
+  </table>
+
+  <div class="section-title">💬 Les 5 Keywords DM + Séquences</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">🔍 AUDIT</div>
+      <div class="card-body">
+        <strong>Qui :</strong> Cold curieux<br>
+        <strong>Sequence :</strong> Lead magnet + 2 questions qualif (heures/semaine, rang bloqué depuis)<br>
+        <strong>Outcome :</strong> Lead chaud segmenté
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 SYSTÈME</div>
+      <div class="card-body">
+        <strong>Qui :</strong> Engagé, veut le framework<br>
+        <strong>Sequence :</strong> Mini-vidéo 5min + invitation candidater<br>
+        <strong>Outcome :</strong> Lead très chaud
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📝 APPLY</div>
+      <div class="card-body">
+        <strong>Qui :</strong> Retarget chaud, ready to buy<br>
+        <strong>Sequence :</strong> Lien formulaire candidature directe<br>
+        <strong>Outcome :</strong> Application
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📖 STORY</div>
+      <div class="card-body">
+        <strong>Qui :</strong> Fan émotionnel<br>
+        <strong>Sequence :</strong> Story longue (Corée + Worlds) + question interactive<br>
+        <strong>Outcome :</strong> Connexion 1:1
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 TIER</div>
+      <div class="card-body">
+        <strong>Qui :</strong> Pragmatique, veut du concret<br>
+        <strong>Sequence :</strong> Tier list champs à éviter pour adultes 40h/sem<br>
+        <strong>Outcome :</strong> Lead chaud segmenté
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">📱 Profile Funnel Instagram</div>
+  <div class="card mb-4">
+    <div class="card-title">Bio v1 (sous 150 caractères)</div>
+    <div class="card-body" style="font-family: monospace; background: var(--bg); padding: 12px; border-radius: 8px;">
+L'incubateur LoL pour adultes 25+<br>
+12 semaines — identité > action<br>
+D4→Challenger | Bronze→Master en 8 mois<br>
+DM "AUDIT" pour ton évaluation
+    </div>
+  </div>
+
+  <div class="section-title">📌 Highlights (5-7)</div>
+  <table>
+    <tr><th>#</th><th>Titre</th><th>Contenu</th></tr>
+    <tr><td>1</td><td>À propos</td><td>Origin stories : Corée, Worlds, Pseudo, Bans</td></tr>
+    <tr><td>2</td><td>Méthode</td><td>Les 3 phases IAE</td></tr>
+    <tr><td>3</td><td>Transformations</td><td>Chaddouk, Lunex, Nyda</td></tr>
+    <tr><td>4</td><td>Pour qui</td><td>Qualification ICP : 25+, salarié, 4-10h/sem</td></tr>
+    <tr><td>5</td><td>FAQ</td><td>Prix, durée, "et si je rage quit ?"</td></tr>
+    <tr><td>6</td><td>Audit</td><td>Pitch lead magnet DM AUDIT</td></tr>
+    <tr><td>7</td><td>Candidater</td><td>Process, timing, prix d'entrée</td></tr>
+  </table>
+
+  <div class="section-title">📍 Pinned Posts (3)</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">1. Origin story signature</div>
+      <div class="card-body">Corée à 16 ans OU Worlds 2021 trahison. Vulnérabilité + autorité.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">2. Best transformation</div>
+      <div class="card-body">Lunex Bronze→Master en 8 mois en intérim. Preuve sociale ICP-aligned.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">3. Framework / Contrarien</div>
+      <div class="card-body">Anti-Hormozi cyclicité OU Système IAE 3 phases. Autorité méthodologique.</div>
+    </div>
+  </div>
+
+  <div class="section-title">🎯 Stratégie Ads (40€/jour)</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">COLD — 20€/jour</div>
+      <div class="card-body">
+        <strong>Audience :</strong> Hommes 25-40, FR/EN, intérêts LoL/esport/mental performance<br><br>
+        <strong>Créatives :</strong><br>
+        • Origin story personnelle<br>
+        • Contrarien high TAM<br>
+        • Comparaison de cas<br><br>
+        <strong>CTA :</strong> Soft — DM keyword. JAMAIS de pitch incubateur.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">RETARGET — 20€/jour</div>
+      <div class="card-body">
+        <strong>Audience :</strong> Profile visitors 30j, engagés 60j<br><br>
+        <strong>Créatives :</strong><br>
+        • Case study client chiffré<br>
+        • "Is this for you ?" qualification<br>
+        • Lead magnet pitch direct<br><br>
+        <strong>CTA :</strong> Medium à Hard — lien bio ou DM APPLY
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: CALENDAR -->
+<div id="section-calendar" class="section hidden">
+  <div class="header">
+    <div>
+      <h1>Calendar & Roadmap</h1>
+      <p>Planification, semaine type, workflow, checklist FR.</p>
+    </div>
+  </div>
+
+  <div class="section-title">📅 Semaine Type (Option B)</div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <strong>1 Long Form / semaine</strong> (Lundi ou Jeudi) — storytelling ou éducatif profond<br>
+      <strong>6-7 Reels indépendants / semaine</strong> — issus de la matrice 10×10, pas dérivés du LF<br>
+      <strong>1 seul reel/semaine</strong> peut être teaser d'un LF (et seulement si naturel)
+    </div>
+  </div>
+
+  <div class="section-title">🔄 Workflow "Jeudi Matin" (2-3h)</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">1. CHOIX (5 min)</div>
+      <div class="card-body">Ouvrir le Vault → choisir 1 bucket + 1 topic Tier 1 + 1 hook dans la matrice</div>
+    </div>
+    <div class="card">
+      <div class="card-title">2. SCRIPT (20 min)</div>
+      <div class="card-body">Remplir les 5 étapes (Hook→Promesse→Body→Bridge→CTA) en voice note ou écrit</div>
+    </div>
+    <div class="card">
+      <div class="card-title">3. RECORD (30-60 min)</div>
+      <div class="card-body">1 plan, lumière propre, 65 sec max (reels) / 1 session 3-4h (long form)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">4. POST (10 min)</div>
+      <div class="card-body">Caption depuis template + hashtags (5 max) + CTA keyword + story de relance</div>
+    </div>
+  </div>
+
+  <div class="section-title">🗓️ Roadmap 6 Semaines</div>
+  <table>
+    <tr><th>Semaine</th><th>Focus</th><th>Livrable clé</th></tr>
+    <tr><td>1</td><td>Activation</td><td>4 stories voice note + Tier 1 #1 + LM1 (AUDIT)</td></tr>
+    <tr><td>2</td><td>Volume</td><td>Tier 1 #2-3-4 + 10 punchlines fond blanc + LM4</td></tr>
+    <tr><td>3</td><td>Contrarien</td><td>2 takes signature (Hormozi cyclicité + paie pas tes potes) + LM3</td></tr>
+    <tr><td>4</td><td>Consolidation</td><td>Tier 1 #5-6-7 + LM2 + FAQ Discord live</td></tr>
+    <tr><td>5</td><td>Long Form</td><td>Vidéo 1 (Worlds) tournée + montage</td></tr>
+    <tr><td>6</td><td>Test & Mesure</td><td>Vidéo 2 (Corée) + analyse retention vidéo 1</td></tr>
+  </table>
+
+  <div class="section-title">🇫🇷 Checklist Adaptation FR (30 sec avant chaque post)</div>
+  <div class="card">
+    <div class="card-body">
+      <div class="checklist-item"><input type="checkbox"> J'ai au moins 1 micro-nuance ("la plupart du temps", "pour 70% des cas")</div>
+      <div class="checklist-item"><input type="checkbox"> J'ai au moins 1 chiffre vérifiable</div>
+      <div class="checklist-item"><input type="checkbox"> Pas d'hyperbole non-sourcée ("INCROYABLE", "FOLLE", "INSANE")</div>
+      <div class="checklist-item"><input type="checkbox"> Mon CTA ne sonne pas comme un pitch agressif</div>
+      <div class="checklist-item"><input type="checkbox"> Pas d'anglicisme coaching US (crush it, level up, bro)</div>
+      <div class="checklist-item"><input type="checkbox"> J'ai 1 phrase d'auto-dérision ou de modestie performante</div>
+      <div class="checklist-item"><input type="checkbox"> Je peux défendre chaque claim si un journaliste me challenge</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: PROMPT -->
+<div id="section-prompt" class="section hidden">
+  <div class="header">
+    <div>
+      <h1>Prompt Maître Kimi</h1>
+      <p>Copie-colle ce bloc au début de CHAQUE conversation avec Kimi.</p>
+    </div>
+    <button class="btn" onclick="copyPrompt()">Copier le prompt</button>
+  </div>
+
+  <div class="output-box" style="font-size: 12px; line-height: 1.7;">
+TU ES L'ASSISTANT DE PRODUCTION DE FRAPPII.
+
+CONTEXTE :
+Frappii (Antonio) est fondateur de l'Incubateur LoL. Ex-pro esport (Worlds 2021, Corée 16 ans, 50 perma-bans). 
+Il coach des adultes 25+ (salariés/entrepreneurs) pour passer de leur rang bloqué à Master/Challenger 
+en 6 mois via le Cycle IAE (Identité-Alignement-Exécution). Son approche : identité avant action, 
+système plutôt que motivation, vie hybride (LoL + vie IRL équilibrée).
+
+TON (5 règles immuables) :
+1. Chirurgical, empathique, socratique — jamais donneur de leçon
+2. Brut mais fraternel — "bref", "quoi", "se faire enculer" autorisés
+3. Anti-hype FR : pas de "CRUSH IT", pas de "BRO", pas de success theater
+4. Auto-dérision modérée : "moi aussi je tilt", "je suis pas dieu"
+5. Complexité assumée : explique la mécanique cachée, pas la recette rapide
+
+LEXIQUE FÉTICHE (utilise 2-3 par contenu) :
+cadre, intention, stack, grind, mirage, banc, hybride, mono-capacité, poly-capable, 
+flou décisionnel, identité avant action, système plutôt que motivation, propriété de l'intention,
+cost of learning, shame loop, saison full/transition/chill.
+
+MOTS INTERDITS : mindset, scaling, ROI, KPI, level up, unlock, game changer, 
+"transformation garantie", hype agressive.
+
+STORIES PILIER (à citer selon le bucket) :
+1. ORIGIN — Pseudo Frappii à 8 ans (frère, restriction mère, TF2, "my go time")
+2. PARADIS — Corée 16 ans (25 games/jour, énergie électrique, mirage)
+3. CHUTE — Worlds 2021 (banc, larmes Islande, psy, 40 bans, injustice)
+4. MISSION — Naissance incubateur (altruisme détruit, cadre reconstruit)
+
+CLIENTS / PREUVES (à citer selon le bridge) :
+- Chaddouk : D4 → Challenger, 4 ans, fondateur de sa boîte
+- Lunex : Bronze → Master en 8 mois en intérim (Cycle Saisonnier)
+- Nyda : 3 ans bloqué Émeraude → Diamond (fix identitaire)
+
+FRAMEWORKS SIGNATURE (à mentionner quand pertinent) :
+- Cycle IAE 6 mois : M1-2 Identité → M3-4 Alignement → M5-6 Exécution LoL
+- Système Saisonnier (8/1/3) : 8 mois Full, 1 mois Transition, 3 mois Chill
+- Vie Hybride : Games de travail vs exutoire, sommeil, marche, chronotype
+- 4 Feux : LoL, taf, couple, santé — en éteindre 1 consciemment
+
+HOOKS — 8 TYPES AUTORISÉS :
+1. Personal stake / origin story
+2. Contrarien / inversion d'idée reçue
+3. Question Socratique
+4. Case study chiffré
+5. Comparaison / contraste
+6. Liste numérotée / framework
+7. Harsh truth empathique
+8. Hypothétique / scénario projeté
+
+TOP 10 FORMATS DE HOOK (mad-libs) :
+- Quel(le) est le/la [plus simple/taboo] [chose] que t'as vu·e [résultat] ?
+- [Action] envers [A], [opposé] envers [B]. Pas l'inverse.
+- J'ai un·e [profil]. On est à [chiffre]. On veut [chiffre cible].
+- [Personne] était extraordinaire. M'a appris [valeur core].
+- Voici [media] de moi à [état extrême]. Voilà ce qui est resté.
+- Deux [profils] [même condition]. Voilà la différence.
+- Tout [habitude] est [conséquence], pour sûr ? Faux.
+- C'est dingue. [Marque] fait [chiffre], mais le vrai business c'est [révélation].
+- Comment tu deviens [adj] à [skill] ? [Impératif tranchant].
+- Si je [repartais de zéro] et voulais [outcome], voilà les [N] phases.
+
+WORKFLOW REEL (5 étapes obligatoires) :
+1. HOOK (0-3 sec) — choisir dans la matrice
+2. PROMESSE (3-7 sec) — ce que le viewer apprend
+3. BODY (7-30 sec) — UN des 3 templates :
+   A. Story (setup → conflit → insight)
+   B. Framework numéroté (3 points max, 1 chiffré)
+   C. Contrarien + preuve (idée reçue → preuve → reframe)
+4. BRIDGE FRAPPII (30-45 sec) — AU MOINS UN :
+   - Concept signature (flou décisionnel, mono-capacité, identité avant action...)
+   - Client (Chaddouk, Lunex, Nyda)
+   - Incubateur ("dans l'incubateur, on appelle ça...")
+   - Contrarien-cyclicité ("Hormozi dit X, mais toi ta vie est cyclique...")
+5. CTA (45-60 sec) — calibrer au niveau de chaleur
+
+MATRICE CTA (ratio sur 10 reels) :
+- 4 SOFT : "DM [KEYWORD], je t'envoie [ressource]"
+- 3 MEDIUM : "Lien en bio pour la version complète"
+- 2 HARD : "Candidate à l'incubateur — DM APPLY"
+- 1 NO-CTA : silence final, pure brand building
+
+6 BUCKETS ÉDITORIAUX (choisir 1 par contenu) :
+ORIGIN (nostalgie+rage), PARADIS (inspiration+mélancolie), CHUTE (vulnérabilité+révolte),
+MISSION (espoir+direction), LEÇONS (révélation+fraternité), GRIND PUR (flow+expertise).
+
+RÈGLES DE SORTIE :
+- Toujours sortir : Hook + Promesse + Body + Bridge + CTA
+- Max 25 mots par hook
+- Tutoiement uniquement
+- 1 chiffre vérifiable minimum par contenu éducatif
+- 1 micro-nuance ("la plupart du temps", "pour 70% des cas")
+- Anglicismes gaming naturels OK (grind, ranked, tilt), anglicismes coaching US INTERDITS
+  </div>
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('section-' + id).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+const scriptsDB = {
+  "chute-worlds-personal-reel": `HOOK (0-3 sec):
+"J'ai pleuré devant mon équipe aux Worlds 2021."
+
+PROMESSE (3-7 sec):
+"Pas parce qu'on perdait. Parce que j'étais meilleur que le mec sur le banc et on me l'a pas donné."
+
+BODY — Story (7-30 sec):
+Setup : Qualifié avec UOL, 3ème Worlds d'affilée, j'avais tout donné.
+Conflit : Benché la veille. Excuse : "il parle pas russe". Alors que je prenais des cours.
+Insight : C'est ce jour-là que j'ai compris que l'esport détruit ceux qui ne savent pas communiquer leur vulnérabilité.
+
+BRIDGE FRAPPII (30-45 sec):
+"C'est exactement ce que je t'évite avec l'incubateur. On ne commence pas par la macro. On commence par l'identité — parce que sans ça, tu finis sur le banc de ta propre vie."
+
+CTA (soft):
+"Si tu es ce talent incompris, DM AUDIT. Pas urgent. Juste si ça te parle."`,
+
+  "paradis-coree-contrarien-reel": `HOOK (0-3 sec):
+"En Corée à 16 ans, je faisais 25 games par jour. Et je redescendais de l'énergie, pas du café."
+
+PROMESSE (3-7 sec):
+"Voilà les 3 différences entre un cyber coréen et ta chambre à 21h."
+
+BODY — Framework (7-30 sec):
+1. Discipline environnementale : PC propres, matos pro, pas de bruit.
+2. Intention collective : les gens viennent pour grind, pas pour fuir.
+3. Énergie amplifiée : tu es compris pour ce que tu es, pas jugé.
+
+BRIDGE FRAPPII (30-45 sec):
+"Tu n'as pas besoin d'aller à Séoul. Tu as besoin de recréer cette énergie chez toi — sans détruire ta meuf. C'est ce qu'on appelle la Vie Hybride dans l'incubateur. Lunex l'a fait en intérim."
+
+CTA (soft):
+"DM HYBRIDE pour le guide."`,
+
+  "mission-bans-harsh-reel": `HOOK (0-3 sec):
+"On m'a ban 40 comptes. On m'a dit que j'étais toxique."
+
+PROMESSE (3-7 sec):
+"Faux. J'étais un gamin de 14 ans avec un passé violent qui communiquait comme il pouvait."
+
+BODY — Contrarien (7-30 sec):
+Idée reçue : "Toxique = mauvais personnage."
+Preuve : J'coachais des mecs de 30 ans à 8 ans. J'étais altruiste. L'esport a détruit ça.
+Reframe : Aujourd'hui je coach les "toxiques". Parce que c'est juste des diamants bruts sans cadre.
+
+BRIDGE FRAPPII (30-45 sec):
+"Dans l'incubateur, on ne te demande pas d'être gentil. On te demande d'être intentionnel. La rage est une boussole, pas un défaut — si tu sais la lire."
+
+CTA (soft):
+"Tag quelqu'un qu'on a mal jugé."`,
+
+  "lecons-hardstuck-socratique-reel": `HOOK (0-3 sec):
+"Quelle est la chose la plus simple que t'as vue propulser un Fer en Master en 18 mois ? Indice : c'est pas la mécanique."
+
+PROMESSE (3-7 sec):
+"C'est le système. Et 99% des coachs ne le voient pas."
+
+BODY — Framework (7-30 sec):
+Phase 1 : Identité (M1-2) — Qui es-tu quand tu cliques play ?
+Phase 2 : Alignement (M3-4) — Tes décisions matchent ton identité ?
+Phase 3 : Exécution (M5-6) — Macro, draft, mécanique. Rapide car fondation solide.
+
+BRIDGE FRAPPII (30-45 sec):
+"C'est le Cycle IAE. Lunex l'a fait — Bronze à Master en 8 mois en intérim. Pas parce qu'il a appris la macro plus vite. Parce qu'il a fait les 4 premiers mois que personne ne fait."
+
+CTA (medium):
+"DM SYSTÈME pour la grille complète des 3 phases."`,
+
+  "origin-pseudo-personal-reel": `HOOK (0-3 sec):
+"Mon frère m'a donné mon pseudo à 8 ans pour me protéger. Voilà pourquoi c'est devenu ma méthodologie."
+
+PROMESSE (3-7 sec):
+"Ton identité précède toujours ton rang. Toujours."
+
+BODY — Story (7-30 sec):
+Setup : 1 an à supplier ma mère de jouer à TF2 comme mon grand frère.
+Conflit : Restriction maternelle → rage stackée.
+Insight : Le jour où j'ai vu "Frappy", j'ai su. L'identité avant l'action.
+
+BRIDGE FRAPPII (30-45 sec):
+"Frappii, c'est pas un nom. C'est l'idée que qui tu es détermine ce que tu fais. Dans l'incubateur, on passe 4 mois sur ce truc que personne ne bosse."
+
+CTA (soft):
+"DM IDENTITÉ pour l'auto-évaluation."`,
+
+  "chute-tilt-harsh-reel": `HOOK (0-3 sec):
+"Tu deafens parce que tu as honte. Pas parce qu'ils flament."
+
+PROMESSE (3-7 sec):
+"La shame loop du gamer adulte — et comment en sortir sans devenir un robot."
+
+BODY — Contrarien (7-30 sec):
+Idée reçue : "Mute = outil tactique neutre."
+Preuve : "I only deafen after I lowkey int bc I can't handle the shame."
+Reframe : Le deafen n'est pas neutre. C'est une réponse à l'écart entre ton self-image et ton output.
+
+BRIDGE FRAPPII (30-45 sec):
+"Je ne te dis pas de pas mute. Je te demande juste de remarquer QUAND tu mute. C'est le début du protocole de gestion du tilt qu'on applique dans l'incubateur."
+
+CTA (soft):
+"DM TILT pour le protocole."`,
+
+  "mission-monocap-contrarien-reel": `HOOK (0-3 sec):
+"Tu n'es pas un ADC. Tu es quelqu'un qui joue ADC. La nuance vaut 200 LP."
+
+PROMESSE (3-7 sec):
+"Voilà comment savoir si ton attachement champion est de la maîtrise ou de la fuite."
+
+BODY — Framework (7-30 sec):
+1. Mono-capacité : tu as fusionné avec un rôle/champion.
+2. Poly-capable : tu joues le rôle, tu n'es pas joué par le rôle.
+3. Test : si tu changes de champ, est-ce que tu exists encore ?
+
+BRIDGE FRAPPII (30-45 sec):
+"C'est le module 2 de l'incubateur. Nyda était Emerald depuis 3 ans sur le même pool. Un fix identitaire, 0 changement de mécanique. Diamond en 4 mois."
+
+CTA (medium):
+"DM AUDIT si tu veux identifier ton vrai goulot."`,
+
+  "lecons-hybride-liste-reel": `HOOK (0-3 sec):
+"T'as 4 feux dans ta vie. L'adulte qui veut Master sans en éteindre 1 finit Or et frustré partout."
+
+PROMESSE (3-7 sec):
+"Voilà lequel j'ai éteint — et pourquoi ça m'a rendu poly-capable."
+
+BODY — Liste (7-30 sec):
+1. LoL : saison full, pas grind constant.
+2. Taf : 40h/sem, pas 60.
+3. Couple : 1 soirée qualité, pas 7 soirées fatigué.
+4. Santé : 7h de sommeil, non négociable.
+
+BRIDGE FRAPPII (30-45 sec):
+"C'est le Système Saisonnier. 8 mois full, 1 mois transition, 3 mois chill. Je l'ai vécu en pro esport. Lunex l'a appliqué en intérim. La progression saisonnière bat la progression linéaire."
+
+CTA (soft):
+"DM SYSTÈME pour la grille."`,
+
+  "grind-iae-hypo-long": `[0:00 - 0:30] HOOK NARRATIF
+"Si je devais repartir Fer 4 demain pour viser Master en 2026, voilà exactement les 3 phases que je suivrais. Pas de spam. Pas de coaching à 50€. Un système qui marche en 12 mois pour un adulte qui bosse."
+
+[0:30 - 8:00] STORY INTRO
+Mon emploi du temps à 18 ans : 6h de soloQ par jour, 0 review. Ma soloQ d'il y a 4 ans : Diamond 4 stuck. Le seul changement ? J'ai retiré 1h de queue et je l'ai remplacée par 20min de review structurée.
+
+[8:00 - 9:00] BRIDGE
+"Voilà ce que ça m'a appris : le joueur avec 4h bien structurées bat le joueur avec 12h chaotiques. Toujours."
+
+[9:00 - 25:00] BODY COACHING
+Phase 1 — Fondations Identitaires (M1-2) : Qui es-tu quand tu cliques play ? Pourquoi tu joues vraiment ?
+Phase 2 — Système & Review (M3-4) : 1 game review pour 5 jouées. Routine pré-session. Kill switch.
+Phase 3 — Leverage & Focus (M5-6) : 1 champ, 1 rôle, 1 condition d'arrêt. Tu doubles down sur ce qui marche.
+
+[25:00 - 27:00] BRIDGE CLIENT
+"C'est exactement ce que Lunex a fait. Bronze à Master en 8 mois. En intérim. Il avait pas plus de talent — il avait un système, et il avait son identité avant son action."
+
+[27:00 - 28:00] CTA
+"Si tu veux la séquence complète avec les drills et la grille de review, DM SYSTÈME. C'est gratuit."`,
+
+  "chute-worlds-socratique-email": `SUJET : La nuit où j'ai été trahi à 17 ans (et ce que ça m'a appris sur le climbing)
+
+En 2021, j'ai qualifié mon équipe aux Worlds. La veille du tournoi, ils m'ont benché.
+
+L'excuse ? "Il parle pas russe." Alors que je prenais des cours depuis des semaines. Le vrai problème ? Des problématiques personnelles au sein de l'équipe qu'on a rejetées sur moi.
+
+J'ai fondu en larmes devant tout le monde en Islande. J'ai dit : "Même moi pendant tous ces mois de soloQ, j'ai plus appris que vous pendant tous ces mois de scrim."
+
+Personne n'a répondu. Mon agent a abandonné. Tout le monde m'a tourné le dos.
+
+C'est ce jour-là que j'ai compris que la performance ne nous définit pas. Que la vulnérabilité n'est pas une faiblesse — c'est un signal. Et que l'esport, dans sa forme actuelle, détruit ceux qui n'ont pas de cadre pour porter cette vulnérabilité.
+
+Aujourd'hui, je construis ce cadre pour les autres. L'incubateur ne commence pas par la macro. Il commence par l'identité. Parce que sans ça, tu finis sur le banc de ta propre vie.
+
+Si tu veux savoir où tu en es, DM AUDIT.`
+};
+
+function generateScript() {
+  const bucket = document.getElementById('gen-bucket').value;
+  const topic = document.getElementById('gen-topic').value;
+  const hook = document.getElementById('gen-hook').value;
+  const format = document.getElementById('gen-format').value;
+
+  // Mapping vers les templates hardcodés
+  let key = null;
+  if (bucket === 'chute' && topic === 'worlds' && hook === 'personal' && format === 'reel') key = 'chute-worlds-personal-reel';
+  else if (bucket === 'paradis' && topic === 'coree' && hook === 'contrarien' && format === 'reel') key = 'paradis-coree-contrarien-reel';
+  else if (bucket === 'mission' && topic === 'bans' && hook === 'harsh' && format === 'reel') key = 'mission-bans-harsh-reel';
+  else if (bucket === 'lecons' && topic === 'hardstuck' && hook === 'socratique' && format === 'reel') key = 'lecons-hardstuck-socratique-reel';
+  else if (bucket === 'origin' && topic === 'pseudo' && hook === 'personal' && format === 'reel') key = 'origin-pseudo-personal-reel';
+  else if (bucket === 'chute' && topic === 'tilt' && hook === 'harsh' && format === 'reel') key = 'chute-tilt-harsh-reel';
+  else if (bucket === 'mission' && topic === 'monocap' && hook === 'contrarien' && format === 'reel') key = 'mission-monocap-contrarien-reel';
+  else if (bucket === 'lecons' && topic === 'hybride' && hook === 'liste' && format === 'reel') key = 'lecons-hybride-liste-reel';
+  else if (format === 'long') key = 'grind-iae-hypo-long';
+  else if (format === 'email') key = 'chute-worlds-socratique-email';
+
+  const out = document.getElementById('script-output');
+  const txt = document.getElementById('script-text');
+
+  if (key && scriptsDB[key]) {
+    txt.textContent = scriptsDB[key];
+    out.classList.remove('hidden');
+  } else {
+    txt.textContent = `GÉNÉRATEUR — ${bucket.toUpperCase()} + ${topic.toUpperCase()} + ${hook.toUpperCase()} + ${format.toUpperCase()}
+
+` +
+      `HOOK (0-3 sec) : [Insérer hook type ${hook} sur ${topic}]
+
+` +
+      `PROMESSE (3-7 sec) : [Insérer promesse liée au bucket ${bucket}]
+
+` +
+      `BODY (7-30 sec) : [Développer selon le format ${format}]
+
+` +
+      `BRIDGE FRAPPII (30-45 sec) : [Insérer bridge avec concept signature ou client]
+
+` +
+      `CTA : [Choisir dans la matrice selon chaleur]`;
+    out.classList.remove('hidden');
+  }
+}
+
+function copyOutput() {
+  const text = document.getElementById('script-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copié !';
+    setTimeout(() => btn.textContent = 'Copier', 1500);
+  });
+}
+
+function copyPrompt() {
+  const text = document.querySelector('#section-prompt .output-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#section-prompt .btn');
+    btn.textContent = 'Copié !';
+    setTimeout(() => btn.textContent = 'Copier le prompt', 1500);
+  });
+}
+</script>
+
+</body>
+</html>
